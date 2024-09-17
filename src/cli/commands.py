@@ -20,3 +20,5 @@ def add():
 from .subcommands.create import *
 from .subcommands.show import *
 from .subcommands.add import *
+from .subcommands.remove import *
+from .subcommands.filter import *
