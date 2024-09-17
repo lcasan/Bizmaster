@@ -12,6 +12,11 @@ def create():
 def show():
     pass
 
+@cli.group
+def add():
+    pass
+
 
 from .subcommands.create import *
 from .subcommands.show import *
+from .subcommands.add import *
