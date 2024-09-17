@@ -11,7 +11,8 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Integer,
-    select
+    select,
+    update
 )
 
 import datetime 
@@ -44,6 +45,25 @@ class Base(DeclarativeBase):
             result = sess.execute(select(cls).order_by(cls.id))
             return result.all()
 
+    @classmethod
+    def update(cls, id:int, schema: BaseModel, sess:Session):
+        with sess() as sess:
+            sess.execute(
+                update(cls).where(cls.id == id).values(**schema.dict())
+            )
+            sess.commit()
+            print(f'{cls.__name__} updated !!!')
+            return True
+        return False
+    
+    @classmethod
+    def searchID(cls, id, sess: Session):
+        with sess() as sess:
+            result = sess.execute(
+                select(cls).where(cls.id == id)
+            ).scalars().first()
+            return result
+
 class Client(Base):
     __tablename__ = 'client'
 
@@ -58,17 +78,21 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(30))
     amount: Mapped[int] = mapped_column(Integer)
 
+    def __str__(self):
+        return f"<Product(id={self.id}, name='{self.name}', price={self.amount})>"
+
 class Provider(Base):
     __tablename__ = 'provider'
 
     name: Mapped[str] = mapped_column(String(30))
-    product: Mapped[list[Product]] = relationship(secondary='provide')
+    product: Mapped[list[Product]] = relationship(secondary='stock')
 
     def __str__(self):
         return f"| {self.id:<2} | {self.name:<30} |"
 
-class Provide(Base):
-    __tablename__ = "provide"
+class Stock(Base):
+    __tablename__ = "stock"
     provider_id: Mapped[int] = mapped_column(ForeignKey("provider.id"))
     product_id: Mapped[int] = mapped_column(ForeignKey("product.id"))
     amount: Mapped[int] = mapped_column(default = 0)
+    price: Mapped[float] = mapped_column(default=0.0)

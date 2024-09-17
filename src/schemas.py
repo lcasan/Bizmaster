@@ -18,9 +18,10 @@ class Product(BaseModel):
     name: str = Field(
         max_length = 30
     )
+    amount: float
 
-class Provide(BaseModel):
+class Stock(BaseModel):
     provider_id: int
     product_id: int
     amount: int
-    
+    price: float
